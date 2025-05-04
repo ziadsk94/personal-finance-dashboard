@@ -34,6 +34,75 @@ db.run(`
   )
 `);
 
+// POST /transactions
+app.post("/transactions", (req, res) => {
+  const { userId, amount, category, date } = req.body;
+  if (!userId || !amount || !category || !date) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+  db.run(
+    `INSERT INTO transactions (userId, amount, category, date) VALUES (?, ?, ?, ?)`,
+    [userId, amount, category, date],
+    function (err) {
+      if (err) {
+        return res.status(500).json({ error: "Failed to save transaction" });
+      }
+      res.status(201).json({ id: this.lastID, userId, amount, category, date });
+    }
+  );
+});
+
+// GET /transactions/:userId
+app.get("/transactions/:userId", (req, res) => {
+  const { userId } = req.params;
+  db.all(
+    `SELECT * FROM transactions WHERE userId = ?`,
+    [userId],
+    (err, rows) => {
+      if (err) {
+        return res.status(500).json({ error: "Failed to fetch transactions" });
+      }
+      res.json(rows);
+    }
+  );
+});
+
+// PUT /transactions/:id
+app.put("/transactions/:id", (req, res) => {
+  const { id } = req.params;
+  const { amount, category, date } = req.body;
+  if (!amount || !category || !date) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+  db.run(
+    `UPDATE transactions SET amount = ?, category = ?, date = ? WHERE id = ?`,
+    [amount, category, date, id],
+    function (err) {
+      if (err) {
+        return res.status(500).json({ error: "Failed to update transaction" });
+      }
+      if (this.changes === 0) {
+        return res.status(404).json({ error: "Transaction not found" });
+      }
+      res.json({ id, amount, category, date });
+    }
+  );
+});
+
+// DELETE /transactions/:id
+app.delete("/transactions/:id", (req, res) => {
+  const { id } = req.params;
+  db.run(`DELETE FROM transactions WHERE id = ?`, [id], function (err) {
+    if (err) {
+      return res.status(500).json({ error: "Failed to delete transaction" });
+    }
+    if (this.changes === 0) {
+      return res.status(404).json({ error: "Transaction not found" });
+    }
+    res.json({ message: "Transaction deleted" });
+  });
+});
+
 // Basic route
 app.get("/", (req, res) => res.send("Backend running"));
 
