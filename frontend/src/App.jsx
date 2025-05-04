@@ -1,4 +1,7 @@
 import "./App.css";
+import TransactionForm from "./components/TransactionForm";
+import TransactionList from "./components/TransactionList";
+import ChartCard from "./components/ChartCard";
 
 function App() {
   return (
@@ -9,11 +12,15 @@ function App() {
       <main>
         <section>
           <h2>Add Transaction</h2>
-          {/* Transaction form placeholder */}
+          <TransactionForm />
+        </section>
+        <section>
+          <h2>Transactions</h2>
+          <TransactionList />
         </section>
         <section>
           <h2>Insights</h2>
-          {/* Charts placeholder */}
+          <ChartCard />
         </section>
       </main>
     </div>
